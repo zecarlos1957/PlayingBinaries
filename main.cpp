@@ -409,9 +409,9 @@ void App::OnAbout()
 ///////////////////////////////////////////////////////////////////////////////
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdArgs, int cmdShow)
 {
-    if(*cmdArgs > 0x20 && *cmdArgs < 0x7b)
+    if(*cmdArgs)
     {
-       return RunSilent(cmdArgs);
+        return RunSilent(cmdArgs);
     }
      App app(hInst);
      app.Init();
