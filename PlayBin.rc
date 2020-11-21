@@ -1,0 +1,165 @@
+
+//
+#include "resource.h"
+#include <windows.h>
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+
+DLG_MAIN DIALOGEX 0, 0, 590, 390
+STYLE DS_SETFONT | DS_MODALFRAME | WS_CAPTION | WS_TILEDWINDOW
+CAPTION "Playing with binaries"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    CONTROL "", IDC_TOOLBAR, TOOLBARCLASSNAME, WS_CHILD | WS_VISIBLE, 7, 7, 100, 50
+    CONTROL "", IDC_TREEVIEW,"SysTreeView32", TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | WS_BORDER | WS_TABSTOP, 5, 23, 92, 200
+    CONTROL "", IDC_TABVIEW, WC_TABCONTROL,  WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE, 105, 23, 480, 345
+
+END
+
+EHDR_PAGE DIALOGEX 5, 15, 460, 330
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    CONTROL "", IDC_EHDR,"SysListView32", WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | WS_EX_CLIENTEDGE, 5, 5, 175, 160
+    CONTROL "", IDC_HEXDATA,"SysListView32", WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | WS_EX_CLIENTEDGE, 5, 180, 460, 140
+
+END
+
+SHDR_PAGE DIALOGEX 5, 15, 473, 330
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    CONTROL "", IDC_SHDR,"SysListView32", WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | WS_EX_CLIENTEDGE, 3, 5, 366, 160
+    CONTROL "", IDC_HEXDATA,"SysListView32", WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | WS_EX_CLIENTEDGE, 3, 180, 467, 140
+
+END
+
+PHDR_PAGE DIALOGEX 5, 15, 460, 330
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    CONTROL "", IDC_PHDR,"SysListView32", WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | WS_EX_CLIENTEDGE, 5, 5, 400, 165
+
+END
+
+
+SYMBOL_PAGE DIALOGEX 5, 15, 460, 330
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    CONTROL "", IDC_SYMBOLTAB,"SysListView32", WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | WS_EX_CLIENTEDGE, 5, 5, 222, 265
+    GROUPBOX "Show symbol type", IDC_STATIC, 5, 280, 190, 40, BS_GROUPBOX
+    CHECKBOX "STT_OBJECT", IDC_CHKOBJ, 20, 290, 80, 15
+    CHECKBOX "STT_FUNC", IDC_CHKFUNC, 100, 290, 80, 15
+    CHECKBOX "STT_SECTION", IDC_CHKSECTION, 20, 300, 80, 15
+    CHECKBOX "STT_FILE", IDC_CHKFILE, 100, 300, 80, 15
+
+END
+
+HEX_PAGE DIALOGEX 5, 15, 460, 330
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+     CONTROL "", IDC_HEXDATA,"SysListView32", WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | WS_EX_CLIENTEDGE, 5, 5, 330, 300
+
+END
+
+DASM_PAGE DIALOGEX 5, 15, 460, 330
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    CONTROL "", IDC_DASM, WC_EDIT, WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | WS_EX_CLIENTEDGE, 5, 5, 222, 300
+
+END
+
+
+PE_PAGE DIALOGEX 5, 15, 460, 330
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    CONTROL "", IDC_PEHDR,"SysListView32", WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | WS_EX_CLIENTEDGE, 5, 5, 175, 160
+    CONTROL "", IDC_HEXDATA,"SysListView32", WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | WS_EX_CLIENTEDGE, 5, 180, 460, 140
+END
+
+
+DLG_ABOUT DIALOGEX 0, 0, 400, 250
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Playing with binaries"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_APPDEFAULT          ICON                    "appDefault.ico"
+
+
+
+IDI_BINARIES BITMAP  DISCARDABLE   "binaries.bmp"
+IDI_BIN BITMAP  DISCARDABLE   "bin.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+IDR_APPMENU MENU DISCARDABLE
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open",                 IDM_FILE_OPEN
+        MENUITEM "Close",                 IDM_FILE_CLOSE
+        MENUITEM SEPARATOR
+        MENUITEM "&Save",                 IDM_FILE_SAVE
+        MENUITEM "&Save as",              IDM_FILE_SAVEAS
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                 IDM_EXIT
+    END
+    POPUP "&Settings"
+    BEGIN
+        MENUITEM "&Enable Shell Extension",     IDM_ESHELLEX
+        MENUITEM "&Disable Shell Extension",    IDM_DSHELLEX
+        MENUITEM SEPARATOR
+        MENUITEM "Preferences",                 IDM_PREFER
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Help!",                 IDM_HELP
+        MENUITEM SEPARATOR
+        MENUITEM "&About...",              IDM_ABOUT
+    END
+END
+
+
+STRINGTABLE
+BEGIN
+    IDS_SECTION_NAMES "Section"
+    IDS_SECTION_FADDR "Raw addr"
+    IDS_SECTION_MADDR "Virt addr"
+    IDS_SECTION_SIZE  "Raw size"
+    IDS_SECTION_FLAG  "Type"
+    IDS_SECTION_INFO  "Flags"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROG_TYPE   "Type"
+    IDS_PROG_OFF    "Offset"
+    IDS_PROG_VADDR  "Virt addr"
+    IDS_PROG_PADDR  "Phis addr"
+    IDS_PROG_FILESZ "File sz"
+    IDS_PROG_MEMSZ  "Mem sz"
+    IDS_PROG_FLAGS  "Flags"
+    IDS_PROG_ALIGN  "Align"
+END
