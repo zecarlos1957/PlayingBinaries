@@ -13,7 +13,7 @@
 	<windows.h>
 	"hexplore.h"
 
-1605830760 d:\source\playingbinaries\resource.h
+1606073516 d:\source\playingbinaries\resource.h
 
 1605882441 d:\source\playingbinaries\hexplore.h
 	"CFileStream.h"
@@ -22,14 +22,14 @@
 1605830760 d:\source\playingbinaries\elf.h
 	<windows.h>
 
-1605882441 source:d:\source\playingbinaries\hexplore.cpp
+1606068322 source:d:\source\playingbinaries\hexplore.cpp
 	"resource.h"
 	<windows.h>
 	<commctrl.h>
 	"Hexplore.h"
 	"elf.h"
 
-1605974338 source:d:\source\playingbinaries\main.cpp
+1606071621 source:d:\source\playingbinaries\main.cpp
 	"resource.h"
 	<windows.h>
 	<commctrl.h>

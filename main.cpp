@@ -247,7 +247,6 @@ void App::Init_ELF_Page(LPSTR fname)
     SendMessage(treeView, TVM_SELECTITEM, (WPARAM)TVGN_CARET, (LPARAM)rootItem);
 
     // Insert Tab page
-    int id = 0;
     TCITEM tci = { 0 };
     tci.mask = TCIF_TEXT;
     tci.pszText = fname;
@@ -261,9 +260,18 @@ void App::Init_PE_Page(LPSTR fname)
     SetWindowPos(hwnd, NULL, 0, 0, 900, 660, SWP_NOMOVE);
     Elf32_Ehdr *target = (Elf32_Ehdr*)pFileStream->GetFile();
     
-    HTREEITEM rootItem = insertTreeItem("PE Header", ID_PEHDR, TVI_ROOT, TVI_LAST, 2, 2);
+    HTREEITEM rootItem = insertTreeItem("IMAGE_FILE_HEADER", ID_PEHDR, TVI_ROOT, TVI_LAST, 2, 2);
     HTREEITEM hItem = insertTreeItem("Section Hdr", ID_SHDR, rootItem, TVI_LAST);
-   SendMessage(treeView, TVM_SELECTITEM, (WPARAM)TVGN_CARET, (LPARAM)rootItem);
+    insertTreeItem("Hex editor", ID_HEXEDIT, rootItem, TVI_LAST, 1, 0);
+    insertTreeItem("Disassembler", ID_DASM, rootItem, TVI_LAST, 1, 0);
+    SendMessage(treeView, TVM_SELECTITEM, (WPARAM)TVGN_CARET, (LPARAM)rootItem);
+
+    // Insert Tab page
+    TCITEM tci = { 0 };
+    tci.mask = TCIF_TEXT;
+    tci.pszText = fname;
+    tci.cchTextMax = lstrlen(fname);
+    SendMessage(tabView, TCM_INSERTITEM, nTab++, (LPARAM)&tci);
 
 }
 
@@ -281,7 +289,9 @@ void App::OnFileClose()
     if(pCurrPage)
         delete pCurrPage;
     pCurrPage = NULL;
-
+    if(nTab > 0)
+        nTab--;
+//    int nSel = SendMessage(tabView, TCM_GETCURSEL, 0, 0);
     TabCtrl_DeleteItem(tabView,0);
     TreeView_DeleteAllItems(treeView);
 }
