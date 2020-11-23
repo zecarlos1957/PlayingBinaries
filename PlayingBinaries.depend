@@ -13,7 +13,7 @@
 	<windows.h>
 	"hexplore.h"
 
-1606073516 d:\source\playingbinaries\resource.h
+1606143010 d:\source\playingbinaries\resource.h
 
 1605882441 d:\source\playingbinaries\hexplore.h
 	"CFileStream.h"
@@ -38,7 +38,7 @@
 	"Hexplore.h"
 	"CFileStream.h"
 
-1605960747 source:d:\source\playingbinaries\playbin.rc
+1606124579 source:d:\source\playingbinaries\playbin.rc
 	"resource.h"
 	<windows.h>
 
