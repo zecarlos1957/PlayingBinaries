@@ -38,17 +38,19 @@
 			<Add library="comctl32" />
 			<Add library="comdlg32" />
 		</Linker>
+		<Unit filename=".gitignore" />
 		<Unit filename="CFileStream.cpp" />
 		<Unit filename="CFileStream.h" />
-		<Unit filename="ElfCfg.cpp" />
-		<Unit filename="Hexplore.cpp" />
-		<Unit filename="Hexplore.h" />
+		<Unit filename="Pages.cpp" />
 		<Unit filename="PlayBin.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
+		<Unit filename="Remote.cpp" />
+		<Unit filename="elf.cpp" />
 		<Unit filename="elf.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="manifest.xml" />
+		<Unit filename="pages.h" />
 		<Unit filename="resource.h" />
 		<Extensions>
 			<code_completion />

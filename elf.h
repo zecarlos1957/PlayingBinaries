@@ -129,6 +129,7 @@ typedef struct {
 	} d_un;
 } Elf32_Dyn;
 
+
  //Special Section Indexes
 #define SHN_UNDEF      0
 #define SHN_LORESERVE  0xff00
@@ -183,6 +184,13 @@ typedef struct {
 
 #define IMAGE_PE_SIGNATURE              0x00004550  // PE00
 
+  Elf32_Shdr *elf_section(Elf32_Ehdr *hdr, int idx);
+ char *get_symbol_strtab(Elf32_Ehdr *target);
+ Elf32_Shdr *get_symbol_table(Elf32_Ehdr *target);
 
+typedef int(*EnumProc)(Elf32_Sym *Sym, char *name, LPARAM lp);
+void EnumSymbols(Elf32_Ehdr *target, EnumProc fn, LPARAM lParam);
+
+int RunSilent(LPSTR cfg);
 
 #endif // _HEADERS_H

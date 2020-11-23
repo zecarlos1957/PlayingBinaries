@@ -14,11 +14,14 @@
 
 
 #define EHDR_PAGE      200
+
 #define SHDR_PAGE      201
 #define PHDR_PAGE      202
 #define SYMBOL_PAGE    203
 #define HEX_PAGE       204
 #define DASM_PAGE      205
+
+
 
 
 #define IDC_TABVIEW     300
@@ -40,6 +43,7 @@
 
 #define IDR_APPMENU     400
 
+
 #define IDM_FILE_NEW      500
 #define IDM_FILE_OPEN     501
 #define IDM_FILE_CLOSE    502
@@ -53,15 +57,18 @@
 #define IDM_ABOUT         510
 #define IDM_EXIT          511
 
-#define ID_EHDR    600
-#define ID_SHDR    601
+
+
+#define ID_ELF_HDR    600
+#define ID_PHDR    601
 #define ID_PHDR    602
 #define ID_SYM     603
-#define ID_PEHDR   604
+#define ID_PE_HDR   604
 #define ID_RELOC   605
 #define ID_HEXEDIT 606
 #define ID_DASM    607
 #define ID_ANY     608
+#define ID_SHDR     609
 
 
 #define IDS_SECTION_NAMES  700
@@ -87,9 +94,6 @@
 #define IDI_BINARIES      810
 
 
-
-
- 
 
 
 

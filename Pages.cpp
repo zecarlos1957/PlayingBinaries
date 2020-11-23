@@ -1,105 +1,8 @@
 #include "resource.h"
 #include <windows.h>
 #include <commctrl.h>
-#include "Hexplore.h"
+#include "Pages.h"
 #include "elf.h"
-
-
-// return pointer to Section Header Table
-static inline Elf32_Shdr *elf_sheader(Elf32_Ehdr *hdr)
-{
-    return (Elf32_Shdr *)((int)hdr + hdr->e_shoff);
-}
-
-//
-static inline Elf32_Shdr *elf_section(Elf32_Ehdr *hdr, int idx)
-{
-    return &elf_sheader(hdr)[idx];
-}
-
-static CHAR* elf_str_table(Elf32_Ehdr *hdr)
-{
-    if (hdr->e_shstrndx == SHN_UNDEF)return NULL;
-    return (CHAR*)hdr + elf_section(hdr, hdr->e_shstrndx)->sh_offset;
-}
-
-static CHAR *elf_lookup_string(Elf32_Ehdr *hdr, INT offset)
-{
-    CHAR *strtab = elf_str_table(hdr);
-    if(strtab == NULL) return NULL;
-    return strtab + offset;
-}
-
-static char *get_symbol_strtab(Elf32_Ehdr *target)
-{
-    char *shstrtab;
-    {
-        unsigned int i = 0;
-        for (unsigned int x = 0; x < (unsigned int)target->e_shentsize * target->e_shnum; x += target->e_shentsize)
-        {
-            Elf32_Shdr * shdr = (Elf32_Shdr *)((uintptr_t)target + (target->e_shoff + x));
-            if (i == target->e_shstrndx) {
-                shstrtab = (char *)((uintptr_t)target + shdr->sh_offset);
-            }
-            i++;
-        }
-    }
-
-    for (unsigned int x = 0; x < (unsigned int)target->e_shentsize * target->e_shnum; x += target->e_shentsize)
-    {
-        Elf32_Shdr * shdr = (Elf32_Shdr *)((uintptr_t)target + (target->e_shoff + x));
-        if (shdr->sh_type == SHT_STRTAB && (!strcmp((char *)((uintptr_t)shstrtab + shdr->sh_name), ".strtab")))
-             return (char *)((uintptr_t)target + shdr->sh_offset);
-    }
-    return NULL;
-}
-
-static Elf32_Shdr *get_symbol_table(Elf32_Ehdr *target)
-{
-    char *shstrtab;
-    {
-        unsigned int i = 0;
-        for (unsigned int x = 0; x < (unsigned int)target->e_shentsize * target->e_shnum; x += target->e_shentsize)
-        {
-            Elf32_Shdr * shdr = (Elf32_Shdr *)((uintptr_t)target + (target->e_shoff + x));
-            if (i == target->e_shstrndx) {
-                shstrtab = (char *)((uintptr_t)target + shdr->sh_offset);
-            }
-            i++;
-        }
-    }
-
-    for (unsigned int x = 0; x < (unsigned int)target->e_shentsize * target->e_shnum; x += target->e_shentsize)
-    {
-       Elf32_Shdr * shdr = (Elf32_Shdr *)((uintptr_t)target + (target->e_shoff + x));
-       if (shdr->sh_type == SHT_SYMTAB && (!strcmp((char *)((uintptr_t)shstrtab + shdr->sh_name), ".symtab")))
-            return shdr;
-    }
-    return NULL;
-}
-
-
-void EnumSymbols(Elf32_Ehdr *target, SymFunc fn, LPARAM lParam)
-{
-    if (!target)
-        return;
-    
-    char *strtab = get_symbol_strtab(target);
-    Elf32_Shdr *symtab = get_symbol_table(target);
-
-    for(int i = 0; i < (symtab->sh_size / symtab->sh_entsize); i++)
-    {
-        Elf32_Sym * symbol = (Elf32_Sym *)((DWORD)target + symtab->sh_offset + i * symtab->sh_entsize);
-        char * name = (char*)(strtab + symbol->st_name);
-
-        if(fn(symbol, name, lParam) == 0)
-            return;
-    }
-}
-
-/*********************************************************/
-/*********************************************************/
-
 
    char *EhdrStr[] =
     {
@@ -1107,5 +1010,34 @@ int SYM_Page::OnMaskButton(WPARAM wParam, LPARAM lParam)
        }
         UpdateData();
     }*/
+    return 0;
+}
+
+PE_Page::PE_Page(HWND hwnd, CFileStream *pFile)
+{
+}
+
+PE_Page::~PE_Page()
+{
+}
+
+
+BOOL CALLBACK  PE_Page::PeProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    static Page *page = NULL;
+    switch (msg)
+    {
+        case WM_INITDIALOG:
+            page = (Page*)lParam;
+            return TRUE;
+        case WM_COMMAND:
+            break;
+        case WM_CLOSE:
+            DestroyWindow(hwnd);
+            break;
+
+    }
+    return FALSE;
+
 }
 

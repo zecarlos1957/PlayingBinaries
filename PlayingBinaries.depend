@@ -8,18 +8,18 @@
 	<fstream>
 	<string>
 
-1605883786 source:d:\source\playingbinaries\elfcfg.cpp
+1606143038 source:d:\source\playingbinaries\elfcfg.cpp
 	"resource.h"
 	<windows.h>
 	"hexplore.h"
 
-1606143010 d:\source\playingbinaries\resource.h
+1606153407 d:\source\playingbinaries\resource.h
 
-1605882441 d:\source\playingbinaries\hexplore.h
+1606143890 d:\source\playingbinaries\hexplore.h
 	"CFileStream.h"
 	"elf.h"
 
-1605830760 d:\source\playingbinaries\elf.h
+1606158036 d:\source\playingbinaries\elf.h
 	<windows.h>
 
 1606068322 source:d:\source\playingbinaries\hexplore.cpp
@@ -29,16 +29,40 @@
 	"Hexplore.h"
 	"elf.h"
 
-1606071621 source:d:\source\playingbinaries\main.cpp
+1606157509 source:d:\source\playingbinaries\main.cpp
 	"resource.h"
 	<windows.h>
 	<commctrl.h>
 	<commdlg.h>
 	<stdio.h>
-	"Hexplore.h"
+	"elf.h"
+	"pages.h"
 	"CFileStream.h"
 
-1606124579 source:d:\source\playingbinaries\playbin.rc
+1606153279 source:d:\source\playingbinaries\playbin.rc
 	"resource.h"
 	<windows.h>
+
+1606158036 source:d:\source\playingbinaries\elf.cpp
+	"resource.h"
+	<windows.h>
+	<commctrl.h>
+	"elf.h"
+
+1606152603 d:\source\playingbinaries\pages.h
+	"CFileStream.h"
+	"elf.h"
+
+1606158036 source:d:\source\playingbinaries\pages.cpp
+	"resource.h"
+	<windows.h>
+	<commctrl.h>
+	"Pages.h"
+	"elf.h"
+
+1606152231 source:d:\source\playingbinaries\remote.cpp
+	"resource.h"
+	<windows.h>
+	"elf.h"
+	"cfilestream.h"
 

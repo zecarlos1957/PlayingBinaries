@@ -1,6 +1,7 @@
 #include "resource.h"
 #include <windows.h>
-#include "hexplore.h"
+#include "elf.h"
+#include "cfilestream.h"
 
 using namespace std;
 
@@ -74,6 +75,7 @@ int UpdateInfo(Elf32_Sym *Sym, char *name, LPARAM lParam)
 
     return 1;
 }
+
 
 int RunSilent(LPSTR cfg)
 {

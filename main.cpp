@@ -16,7 +16,8 @@
 #include <commctrl.h>                   // common controls
 #include <commdlg.h>
 #include <stdio.h>
-#include "Hexplore.h"
+#include "elf.h"
+#include "pages.h"
 #include "CFileStream.h"
 
 
@@ -26,6 +27,7 @@
 
 extern int RunSilent(LPSTR cfg);
 
+ 
 class App
 {
     HWND hwnd;
@@ -236,7 +238,7 @@ void App::Init_ELF_Page(LPSTR fname)
     SetWindowPos(hwnd, NULL, 0, 0, 880, 640, SWP_NOMOVE);
     Elf32_Ehdr *target = (Elf32_Ehdr*)pFileStream->GetFile();
  //   HTREEITEM rootItem = treeView.insertItem(fname, TVI_ROOT, TVI_LAST, 2, 2);
-    HTREEITEM rootItem = insertTreeItem("ELF32 header", ID_EHDR, TVI_ROOT, TVI_LAST, 2, 2);
+    HTREEITEM rootItem = insertTreeItem("ELF32 header", ID_ELF_HDR, TVI_ROOT, TVI_LAST, 2, 2);
     HTREEITEM hItem = insertTreeItem("Section Hdr", ID_SHDR, rootItem, TVI_LAST);
     insertTreeItem("SymbolTab", ID_SYM, hItem, TVI_LAST);
     if (target->e_phnum)
@@ -260,7 +262,7 @@ void App::Init_PE_Page(LPSTR fname)
     SetWindowPos(hwnd, NULL, 0, 0, 900, 660, SWP_NOMOVE);
     Elf32_Ehdr *target = (Elf32_Ehdr*)pFileStream->GetFile();
     
-    HTREEITEM rootItem = insertTreeItem("IMAGE_FILE_HEADER", ID_PEHDR, TVI_ROOT, TVI_LAST, 2, 2);
+    HTREEITEM rootItem = insertTreeItem("IMAGE_FILE_HEADER", ID_PE_HDR, TVI_ROOT, TVI_LAST, 2, 2);
     HTREEITEM hItem = insertTreeItem("Section Hdr", ID_SHDR, rootItem, TVI_LAST);
     insertTreeItem("Hex editor", ID_HEXEDIT, rootItem, TVI_LAST, 1, 0);
     insertTreeItem("Disassembler", ID_DASM, rootItem, TVI_LAST, 1, 0);
@@ -350,7 +352,7 @@ void App::OnNotify(WPARAM wParam, LPARAM lParam)
 
         switch(iItem.lParam)
         {
-            case ID_EHDR:
+            case ID_ELF_HDR:
                 if (pCurrPage) delete pCurrPage;
                 pCurrPage = new EHDR_Page(tabView, pFileStream);
                 break;
@@ -365,6 +367,10 @@ void App::OnNotify(WPARAM wParam, LPARAM lParam)
             case ID_SYM:
                 if (pCurrPage) delete pCurrPage;
                 pCurrPage = new SYM_Page(tabView, pFileStream);
+                break;
+            case ID_PE_HDR:
+                if (pCurrPage) delete pCurrPage;
+                pCurrPage = new PE_Page(tabView, pFileStream);
                 break;
             case ID_ANY:
     printf("ID_ANY");
