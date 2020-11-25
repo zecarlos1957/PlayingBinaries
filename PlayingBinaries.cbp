@@ -41,6 +41,15 @@
 		<Unit filename=".gitignore" />
 		<Unit filename="CFileStream.cpp" />
 		<Unit filename="CFileStream.h" />
+		<Unit filename="Dasm/DASMEngine.cpp" />
+		<Unit filename="Dasm/DASMEngine.h" />
+		<Unit filename="Dasm/DasmAssert.cpp" />
+		<Unit filename="Dasm/DasmAssert.h" />
+		<Unit filename="Dasm/DasmInc.h" />
+		<Unit filename="Dasm/Logger.cpp" />
+		<Unit filename="Dasm/Logger.h" />
+		<Unit filename="Dasm/Utils.cpp" />
+		<Unit filename="Dasm/Utils.h" />
 		<Unit filename="Pages.cpp" />
 		<Unit filename="PlayBin.rc">
 			<Option compilerVar="WINDRES" />

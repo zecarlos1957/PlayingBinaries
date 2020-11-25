@@ -3,6 +3,8 @@
 #include <commctrl.h>
 #include "Pages.h"
 #include "elf.h"
+#include "dasm/dasmengine.h"
+
 
    char *EhdrStr[] =
     {
@@ -407,9 +409,10 @@ void EHDR_Page::UpdateHdr()
 SHDR_Page::SHDR_Page(HWND hParent,  CFileStream *pFile)
 {
     target = (Elf32_Ehdr*)pFile->GetFile();
-    hWnd = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(SHDR_PAGE),hParent, SHDR_Page::ShdrProc, (LPARAM)this);
+    hWnd = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(SHDR_PAGE), hParent, SHDR_Page::ShdrProc, (LPARAM)this);
     HdrData = GetDlgItem(hWnd, IDC_SHDR);
     HexEdit = GetDlgItem(hWnd, IDC_HEXDATA);
+    ListView_SetExtendedListViewStyle(HexEdit, LVS_EX_FULLROWSELECT);
 
     BuildHex();
     BuildHdr();
@@ -843,7 +846,7 @@ BOOL CALLBACK  DASM_Page::DasmProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 /*****************************************/
 
 SYM_Page::SYM_Page(HWND hwnd, CFileStream *pFile)
- {
+{
     target = (Elf32_Ehdr*)pFile->GetFile();
     hWnd = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(SYMBOL_PAGE),hwnd, SYM_Page::SymProc, (LPARAM)this);
 
@@ -852,6 +855,8 @@ SYM_Page::SYM_Page(HWND hwnd, CFileStream *pFile)
     ChkFile = GetDlgItem(hWnd, IDC_CHKFILE);
     SymbolList = GetDlgItem(hWnd, IDC_SYMBOLTAB);
     ChkSection = GetDlgItem(hWnd, IDC_CHKSECTION);
+    CodeList = GetDlgItem(hWnd, IDC_DASM);
+
     HFONT hf = (HFONT)GetStockObject(ANSI_VAR_FONT);
     SendMessage(ChkObj, WM_SETFONT, (WPARAM)hf, TRUE);
     SendMessage(ChkFunc, WM_SETFONT, (WPARAM)hf, TRUE);
@@ -865,7 +870,7 @@ SYM_Page::SYM_Page(HWND hwnd, CFileStream *pFile)
     lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
     lvc.fmt = LVCFMT_LEFT;
     lvc.iSubItem = 0;
-    lvc.cx = 100;
+    lvc.cx = 60;
     lvc.pszText = "Address";
     ListView_InsertColumn(SymbolList, 0, &lvc);
     lvc.cx = 150;
@@ -881,6 +886,24 @@ SYM_Page::SYM_Page(HWND hwnd, CFileStream *pFile)
     lvc.pszText = "Bind";
     ListView_InsertColumn(SymbolList, 3, &lvc);
     UpdateData();
+
+    ListView_SetExtendedListViewStyle(CodeList, LVS_EX_FULLROWSELECT);
+    lvc = { 0 };
+    lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+    lvc.fmt = LVCFMT_LEFT;
+    lvc.iSubItem = 0;
+    lvc.cx = 70;
+    lvc.pszText = "Address";
+    ListView_InsertColumn(CodeList, 0, &lvc);
+    lvc.cx = 110;
+    lvc.iSubItem = 1;
+    lvc.pszText = "Opcode";
+    ListView_InsertColumn(CodeList, 1, &lvc);
+    lvc.cx = 200;
+    lvc.iSubItem = 2;
+    lvc.pszText = "Instruction";
+    ListView_InsertColumn(CodeList, 2, &lvc);
+
  }
 
 void SYM_Page::UpdateData()
@@ -929,7 +952,8 @@ void SYM_Page::UpdateData()
 
 SYM_Page::~SYM_Page()
 {
-    ListView_DeleteAllItems(hWnd);
+    ListView_DeleteAllItems(SymbolList);
+    ListView_DeleteAllItems(CodeList);
     SendMessage(hWnd, WM_CLOSE, 0, 0);
 }
 
@@ -966,7 +990,7 @@ BOOL CALLBACK  SYM_Page::SymProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
             break;
 
         case WM_NOTIFY:
-
+            page->OnNotify(wParam, lParam);
             break;
 
         case WM_CLOSE:
@@ -975,6 +999,42 @@ BOOL CALLBACK  SYM_Page::SymProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
             break;
     }
     return FALSE;
+}
+
+int SYM_Page::OnNotify(WPARAM wParam, LPARAM lParam)
+{
+    if ( ((LPNMHDR)lParam)->code == LVN_ITEMCHANGED && wParam == IDC_SYMBOLTAB)
+    {
+        LPNMITEMACTIVATE lpit = (LPNMITEMACTIVATE) lParam;
+        if((lpit->uNewState & LVIS_SELECTED)  && (lpit->uNewState & LVIS_FOCUSED))
+        {
+            char *strtab = get_symbol_strtab(target);
+            Elf32_Shdr *symtab = get_symbol_table(target);
+            Elf32_Sym * symbol = (Elf32_Sym *)((DWORD)target + symtab->sh_offset + (lpit->iItem + 1)* symtab->sh_entsize);
+            int nItems = ListView_GetItemCount(SymbolList);
+            Elf32_Shdr *text = elf_section(target, 1);
+            DWORD base_Addr = text->sh_addr;
+
+            if(ELF32_ST_TYPE(symbol->st_info) == STT_FUNC)
+            {
+                Elf32_Sym * next_symbol = (Elf32_Sym *)((DWORD)target + symtab->sh_offset + (lpit->iItem + 2)* symtab->sh_entsize);
+                DWORD nSize = next_symbol->st_value - symbol->st_value;
+                DWORD *addr = (DWORD*)((DWORD)target - text->sh_addr + symbol->st_value + text->sh_offset);
+                DoDisassembly(CodeList, addr, nSize, text->sh_addr, FALSE);
+              //  Translate((DWORD*)symbol->st_value, nSize);
+   //            printf("SubItem %d 0x%x, %d \n", lpit->iItem, symbol->st_value, nSize);//, shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
+   //           printf("addr 0x%x, off 0x%x \n", text->sh_addr, (DWORD)addr);
+            }
+        }
+    }
+    return 0;
+}
+
+void SYM_Page::Translate(DWORD *code, DWORD dwSize)
+{
+    // create a memory mapping for the file with GENERIC_READ and GENERIC_EXECUTE
+    // that is, create the file mapping object
+//    DoDisassembly(code, dwSize, (DWORD)code, FALSE);
 }
 
 int SYM_Page::OnMaskButton(WPARAM wParam, LPARAM lParam)

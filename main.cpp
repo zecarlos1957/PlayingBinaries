@@ -27,7 +27,7 @@
 
 extern int RunSilent(LPSTR cfg);
 
- 
+
 class App
 {
     HWND hwnd;
@@ -245,7 +245,7 @@ void App::Init_ELF_Page(LPSTR fname)
         insertTreeItem("Program Hdr", ID_PHDR, rootItem, TVI_LAST, 1, 0);
     insertTreeItem("Relocation", ID_RELOC, rootItem, TVI_LAST, 1, 0);
     insertTreeItem("Hex editor", ID_HEXEDIT, rootItem, TVI_LAST, 1, 0);
-    insertTreeItem("Disassembler", ID_DASM, rootItem, TVI_LAST, 1, 0);
+    insertTreeItem("Disassembler", ID_TREE_DASM, rootItem, TVI_LAST, 1, 0);
     SendMessage(treeView, TVM_SELECTITEM, (WPARAM)TVGN_CARET, (LPARAM)rootItem);
 
     // Insert Tab page
@@ -261,11 +261,11 @@ void App::Init_PE_Page(LPSTR fname)
 {
     SetWindowPos(hwnd, NULL, 0, 0, 900, 660, SWP_NOMOVE);
     Elf32_Ehdr *target = (Elf32_Ehdr*)pFileStream->GetFile();
-    
+
     HTREEITEM rootItem = insertTreeItem("IMAGE_FILE_HEADER", ID_PE_HDR, TVI_ROOT, TVI_LAST, 2, 2);
     HTREEITEM hItem = insertTreeItem("Section Hdr", ID_SHDR, rootItem, TVI_LAST);
     insertTreeItem("Hex editor", ID_HEXEDIT, rootItem, TVI_LAST, 1, 0);
-    insertTreeItem("Disassembler", ID_DASM, rootItem, TVI_LAST, 1, 0);
+    insertTreeItem("Disassembler", ID_TREE_DASM, rootItem, TVI_LAST, 1, 0);
     SendMessage(treeView, TVM_SELECTITEM, (WPARAM)TVGN_CARET, (LPARAM)rootItem);
 
     // Insert Tab page
@@ -381,7 +381,7 @@ void App::OnNotify(WPARAM wParam, LPARAM lParam)
                 if(pCurrPage) delete pCurrPage;
                 pCurrPage = new HEX_Page(tabView.getHandle(), pFileStream);
                 break;
-            case ID_DASM:
+            case ID_TREE_DASM:
                 if(pCurrPage) delete pCurrPage;
                 pCurrPage = new DASM_Page(tabView.getHandle(), pFileStream);
                 break;*/

@@ -25,8 +25,8 @@
 
 
 #define IDC_TABVIEW     300
-#define IDC_TREEVIEW   301
-#define IDC_TOOLBAR    302
+#define IDC_TREEVIEW    301
+#define IDC_TOOLBAR     302
 #define IDC_EHDR        303
 #define IDC_HEXDATA     304
 #define IDC_SHDR        305
@@ -39,6 +39,7 @@
 #define IDC_HEXEDIT     312
 #define IDC_DASM        313
 #define IDC_PEHDR       314
+#define IDC_DASM        315
 
 
 #define IDR_APPMENU     400
@@ -63,12 +64,13 @@
 #define ID_PHDR    601
 #define ID_PHDR    602
 #define ID_SYM     603
-#define ID_PE_HDR   604
-#define ID_RELOC   605
-#define ID_HEXEDIT 606
-#define ID_DASM    607
-#define ID_ANY     608
-#define ID_SHDR     609
+#define ID_PE_HDR       604
+#define ID_RELOC        605
+#define ID_HEXEDIT      606
+#define ID_TREE_DASM    607
+#define ID_ANY          608
+#define ID_SHDR         609
+
 
 
 #define IDS_SECTION_NAMES  700
@@ -98,4 +100,3 @@
 
 
 
- 
