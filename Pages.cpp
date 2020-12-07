@@ -467,7 +467,7 @@ void SHDR_Page::BuildHdr()
 
     HINSTANCE hInst = (HINSTANCE)GetWindowLong(HdrData, GWL_HINSTANCE);
 
-    ListView_SetExtendedListViewStyle(HdrData, LVS_EX_FULLROWSELECT);
+    ListView_SetExtendedListViewStyle(HdrData, LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES);
     LVCOLUMN lvc = { 0 };
 
     lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
@@ -499,8 +499,6 @@ void SHDR_Page::BuildHdr()
         i++;
     }
 
-
-    i = 1;
     for (lvi.iItem = 0; lvi.iItem < target->e_shnum - 1; lvi.iItem++)
     {
         Elf32_Shdr* shdr = (Elf32_Shdr*)((uintptr_t)target + (target->e_shoff + ((lvi.iItem+1)*target->e_shentsize)));
@@ -863,6 +861,9 @@ SYM_Page::SYM_Page(HWND hwnd, CFileStream *pFile)
     SendMessage(ChkFile, WM_SETFONT, (WPARAM)hf, TRUE);
     SendMessage(ChkSection, WM_SETFONT, (WPARAM)hf, TRUE);
 
+//    hf = (HFONT)GetStockObject(ANSI_FIXED_FONT);
+ //   SendMessage(CodeList, WM_SETFONT, (WPARAM)hf, TRUE);
+
     ListView_SetExtendedListViewStyle(SymbolList, LVS_EX_FULLROWSELECT);
     CheckDlgButton(hWnd, IDC_CHKOBJ, BST_CHECKED);
 
@@ -1039,7 +1040,7 @@ void SYM_Page::Translate(DWORD *code, DWORD dwSize)
 
 int SYM_Page::OnMaskButton(WPARAM wParam, LPARAM lParam)
 {
- /*   if (HIWORD(wParam) == BN_CLICKED)
+    if (HIWORD(wParam) == BN_CLICKED)
     {
         switch(LOWORD(wParam))
         {
@@ -1069,7 +1070,7 @@ int SYM_Page::OnMaskButton(WPARAM wParam, LPARAM lParam)
                 break;
        }
         UpdateData();
-    }*/
+    }
     return 0;
 }
 

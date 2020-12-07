@@ -40,7 +40,9 @@
 #define IDC_DASM        313
 #define IDC_PEHDR       314
 #define IDC_DASM        315
-
+#define IDC_TABABOUT    316
+#define IDC_LICENCE     317
+#define IDC_LICENCE2    318
 
 #define IDR_APPMENU     400
 
@@ -57,7 +59,7 @@
 #define IDM_HELP          509
 #define IDM_ABOUT         510
 #define IDM_EXIT          511
-
+#define IDC_BTOK          512
 
 
 #define ID_ELF_HDR    600
