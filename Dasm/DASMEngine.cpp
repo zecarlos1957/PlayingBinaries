@@ -2182,8 +2182,8 @@ BOOL StateDumpOnOpcodeError()
 
 BOOL StateDump(HWND ListView)
 {
-    CHAR Str[128];
-    WCHAR wBuf[128];
+    CHAR Str[256];
+    WCHAR wBuf[256];
     static WCHAR awszPrefixStr[][8] = { L"lock", L"repne", L"repe" };
     static CHAR aszPrefixStr[][8] = { "lock", "repne", "repe" };
     static INT aiPrefixStrNChars[] = { 4, 5, 4 };
@@ -2198,6 +2198,7 @@ BOOL StateDump(HWND ListView)
     // Eg.: 0040108F: 89 04 95 D0 60 D5 00    mov            dword ptr [edx*4+0D560D0h],eax
 
     // 1: address
+    wprintf(L"%08X: ", (UINT)((pByteInCode - nBytesCurIns) + lDelta));
     sprintf(Str, " %08X: ", (UINT)((pByteInCode - nBytesCurIns) + lDelta));
 
     InsertString(ListView, Str, lSize, 0);
@@ -2266,8 +2267,9 @@ BOOL StateDump(HWND ListView)
     }// if there is a lock/rep prefix
 
     // 4: Instruction mnemonic
-        wprintf(L"%s", wszCurInsStr);
+        wprintf(L"%s", wszCurInsStr);   
         wcstombs(Str+lstrlen(Str), wszCurInsStr, sizeof(Str));
+
     nCharsMnemPrinted += wcslen(wszCurInsStr);
 
     // Now print padding spaces if required
