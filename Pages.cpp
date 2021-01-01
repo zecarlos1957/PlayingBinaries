@@ -1021,10 +1021,10 @@ int SYM_Page::OnNotify(WPARAM wParam, LPARAM lParam)
                 Elf32_Sym * next_symbol = (Elf32_Sym *)((DWORD)target + symtab->sh_offset + (lpit->iItem + 2)* symtab->sh_entsize);
                 DWORD nSize = next_symbol->st_value - symbol->st_value;
                 DWORD *addr = (DWORD*)((DWORD)target - text->sh_addr + symbol->st_value + text->sh_offset);
-                DoDisassembly(CodeList, addr, nSize, text->sh_addr, FALSE);
+                DoDisassembly(CodeList, addr, nSize, symbol->st_value, FALSE);
               //  Translate((DWORD*)symbol->st_value, nSize);
    //            printf("SubItem %d 0x%x, %d \n", lpit->iItem, symbol->st_value, nSize);//, shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
-   //           printf("addr 0x%x, off 0x%x \n", text->sh_addr, (DWORD)addr);
+-  //           printf("addr 0x%x, off 0x%x \n", text->sh_addr, (DWORD)addr);
             }
         }
     }
