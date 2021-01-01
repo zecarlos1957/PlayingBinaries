@@ -181,7 +181,7 @@ BOOL CALLBACK AboutDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
                         current = hTab2;
                         return 0;
                     case 2:
-                        ShowLicence(hTab3, "License");
+                        ShowLicence(hTab3, "License_dasm");
                         ShowWindow(current, SW_HIDE);
                         ShowWindow(hTab3, SW_SHOW);
                         current = hTab3;
