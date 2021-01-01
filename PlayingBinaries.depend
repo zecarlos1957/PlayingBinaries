@@ -29,7 +29,7 @@
 	"Hexplore.h"
 	"elf.h"
 
-1609532275 source:d:\source\playingbinaries\main.cpp
+1609544166 source:d:\source\playingbinaries\main.cpp
 	"resource.h"
 	<windows.h>
 	<commctrl.h>
@@ -39,7 +39,7 @@
 	"pages.h"
 	"CFileStream.h"
 
-1607988429 source:d:\source\playingbinaries\playbin.rc
+1609542934 source:d:\source\playingbinaries\playbin.rc
 	"resource.h"
 	<windows.h>
 
