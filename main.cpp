@@ -296,7 +296,7 @@ TBBUTTON* App::build_toolbar(int &sz)
     tbb[6].iBitmap = STD_HELP;
     tbb[6].fsState = TBSTATE_ENABLED;
     tbb[6].fsStyle = TBSTYLE_BUTTON;
-    tbb[6].idCommand = IDM_HELP;
+    tbb[6].idCommand = IDM_ABOUT;
 
     return tbb;
 }
