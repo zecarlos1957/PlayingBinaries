@@ -62,6 +62,7 @@ void EnumSymbols(Elf32_Ehdr *target, SymFunc fn, LPARAM lp);
     class SYM_Page: public Page
     {
         HWND  SymbolList;
+        HWND  CodeList;
         HWND  ChkObj;
         HWND  ChkFunc;
         HWND  ChkSection;
@@ -73,6 +74,7 @@ void EnumSymbols(Elf32_Ehdr *target, SymFunc fn, LPARAM lp);
         ~SYM_Page();
         static BOOL CALLBACK  SymProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
         int OnMaskButton(WPARAM wParam, LPARAM lParam);
+        int OnNotify(WPARAM wParam, LPARAM lParam);
    };
 
     class HEX_Page: public Page

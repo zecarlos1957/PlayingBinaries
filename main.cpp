@@ -16,7 +16,8 @@
 #include <commctrl.h>                   // common controls
 #include <commdlg.h>
 #include <stdio.h>
-#include "Hexplore.h"
+#include "elf.h"
+#include "pages.h"
 #include "CFileStream.h"
 
 
@@ -25,6 +26,7 @@
 
 
 extern int RunSilent(LPSTR cfg);
+
 
 class App
 {
@@ -60,6 +62,143 @@ public:
     void OnAbout();
 };
 
+HBITMAP hbmp;
+HWND hTab1,hTab2,hTab3;
+
+BOOL ShowLicence(HWND hEdit, LPCTSTR pszFileName)
+{
+	HANDLE hFile;
+	BOOL bSuccess = FALSE;
+
+	hFile = CreateFile(pszFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	if(hFile != INVALID_HANDLE_VALUE)
+	{
+		DWORD dwFileSize;
+
+		dwFileSize = GetFileSize(hFile, NULL);
+		if(dwFileSize != 0xFFFFFFFF)
+		{
+			LPSTR pszFileText;
+
+			pszFileText = (LPSTR)GlobalAlloc(GPTR, dwFileSize + 1);
+			if(pszFileText != NULL)
+			{
+				DWORD dwRead;
+
+				if(ReadFile(hFile, pszFileText, dwFileSize, &dwRead, NULL))
+				{
+					pszFileText[dwFileSize] = 0; // Add null terminator
+					if(SetWindowText(hEdit, pszFileText))
+						bSuccess = TRUE; // It worked!
+				}
+				GlobalFree(pszFileText);
+			}
+		}
+		CloseHandle(hFile);
+	}
+	return bSuccess;
+}
+
+BOOL CALLBACK AboutDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    static HWND current;
+    switch(uMsg)
+    {
+        case WM_INITDIALOG:
+        {
+            HINSTANCE hInst = reinterpret_cast<HINSTANCE>(GetWindowLong(hwndDlg,GWL_HINSTANCE));
+            HICON hic = LoadIcon(hInst, MAKEINTRESOURCE(IDI_APPDEFAULT));
+            SendMessage(hwndDlg, WM_SETICON, (WPARAM)ICON_BIG, (LPARAM)hic);
+            SendMessage(hwndDlg, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hic);
+
+            hbmp = LoadBitmap(hInst,MAKEINTRESOURCE(IDI_BIN));
+            if(hbmp == NULL) MessageBox(hwndDlg,"Error loading Bitmap","Error",MB_OK);
+            HWND hBtn = GetDlgItem(hwndDlg,IDC_BTOK);
+
+            TCITEM tie = {0};
+            CHAR *Tab1 = "Cover";
+            CHAR *Tab2 = "License";
+            CHAR *Tab3 = "Disassembly";
+            HWND hTab = GetDlgItem(hwndDlg, IDC_TABABOUT);
+
+            tie.mask = TCIF_TEXT;
+            tie.pszText = Tab1;
+            TabCtrl_InsertItem(hTab,0,&tie);
+            tie.pszText = Tab2;
+            TabCtrl_InsertItem(hTab,1,&tie);
+            tie.pszText = Tab3;
+            TabCtrl_InsertItem(hTab,2,&tie);
+
+            RECT tr = {0};
+            TabCtrl_GetItemRect(hTab,0,&tr);
+
+            hTab3 = CreateWindowEx(WS_EX_STATICEDGE,"EDIT","",WS_CHILD|ES_MULTILINE|ES_READONLY|WS_VSCROLL,
+                                 20,35,410,110,hTab,(HMENU)IDC_LICENCE2,hInst,NULL);
+            hTab2 = CreateWindowEx(WS_EX_STATICEDGE,"EDIT","",WS_CHILD|ES_MULTILINE|ES_READONLY|WS_VSCROLL,
+                                 20,35,410,110,hTab,(HMENU)IDC_LICENCE,hInst,NULL);
+            hTab1 = CreateWindowEx(WS_EX_STATICEDGE,"STATIC","",WS_CHILD|WS_VISIBLE ,
+                                 20,35,410,110,hTab,(HMENU)NULL,hInst,NULL);
+
+
+            current = hTab1;
+            ShowWindow(current,SW_SHOWNORMAL);
+
+            return TRUE;
+        }
+        case WM_PAINT:
+        {
+            PAINTSTRUCT ps;
+            BITMAP bm;
+            HDC hdc=BeginPaint(hwndDlg,&ps);
+            HDC hdcMem=CreateCompatibleDC(hdc);
+            HBITMAP hbmOld=(HBITMAP)SelectObject(hdcMem,hbmp);
+            GetObject(hbmp,sizeof(bm),&bm);
+            BitBlt(hdc,25,27,bm.bmWidth,bm.bmHeight,hdcMem,0,0,SRCCOPY);
+            SelectObject(hdcMem,hbmOld);
+            DeleteDC(hdcMem);
+            EndPaint(hwndDlg,&ps);
+            return 0;
+        }
+        case  WM_NOTIFY:
+        {
+            HWND hTab=GetDlgItem(hwndDlg,IDC_TABABOUT);
+            LPNMHDR lpnmhdr=(LPNMHDR)lParam;
+            if(lpnmhdr->code == TCN_SELCHANGE)
+            {
+                int iPage = TabCtrl_GetCurSel(hTab);
+
+                switch(iPage)
+                {
+                    case 0:
+                        ShowWindow(current, SW_HIDE);
+                        ShowWindow(hTab1, SW_SHOW);
+                        current = hTab1;
+                        return 0;
+                    case 1:
+                        ShowLicence(hTab2, "License");
+                        ShowWindow(current, SW_HIDE);
+                        ShowWindow(hTab2, SW_SHOW);
+                        current = hTab2;
+                        return 0;
+                    case 2:
+                        ShowLicence(hTab3, "License_dasm");
+                        ShowWindow(current, SW_HIDE);
+                        ShowWindow(hTab3, SW_SHOW);
+                        current = hTab3;
+                        return 0;
+                    default:break;
+                }
+
+            }
+            return 0;
+        }
+        case WM_CLOSE:
+            DeleteObject(hbmp);
+            EndDialog(hwndDlg, 0);
+            return 0;
+    }
+    return FALSE;
+}
 
 App::App(HINSTANCE hinst):hInst(hinst), pCurrPage(NULL), pFileStream(NULL), nTab(0)
 {
@@ -190,7 +329,7 @@ TBBUTTON* App::build_toolbar(int &sz)
     tbb[6].iBitmap = STD_HELP;
     tbb[6].fsState = TBSTATE_ENABLED;
     tbb[6].fsStyle = TBSTYLE_BUTTON;
-    tbb[6].idCommand = IDM_HELP;
+    tbb[6].idCommand = IDM_ABOUT;
 
     return tbb;
 }
@@ -236,18 +375,17 @@ void App::Init_ELF_Page(LPSTR fname)
     SetWindowPos(hwnd, NULL, 0, 0, 880, 640, SWP_NOMOVE);
     Elf32_Ehdr *target = (Elf32_Ehdr*)pFileStream->GetFile();
  //   HTREEITEM rootItem = treeView.insertItem(fname, TVI_ROOT, TVI_LAST, 2, 2);
-    HTREEITEM rootItem = insertTreeItem("ELF32 header", ID_EHDR, TVI_ROOT, TVI_LAST, 2, 2);
+    HTREEITEM rootItem = insertTreeItem("ELF32 header", ID_ELF_HDR, TVI_ROOT, TVI_LAST, 2, 2);
     HTREEITEM hItem = insertTreeItem("Section Hdr", ID_SHDR, rootItem, TVI_LAST);
     insertTreeItem("SymbolTab", ID_SYM, hItem, TVI_LAST);
     if (target->e_phnum)
         insertTreeItem("Program Hdr", ID_PHDR, rootItem, TVI_LAST, 1, 0);
     insertTreeItem("Relocation", ID_RELOC, rootItem, TVI_LAST, 1, 0);
     insertTreeItem("Hex editor", ID_HEXEDIT, rootItem, TVI_LAST, 1, 0);
-    insertTreeItem("Disassembler", ID_DASM, rootItem, TVI_LAST, 1, 0);
+    insertTreeItem("Disassembler", ID_TREE_DASM, rootItem, TVI_LAST, 1, 0);
     SendMessage(treeView, TVM_SELECTITEM, (WPARAM)TVGN_CARET, (LPARAM)rootItem);
 
     // Insert Tab page
-    int id = 0;
     TCITEM tci = { 0 };
     tci.mask = TCIF_TEXT;
     tci.pszText = fname;
@@ -260,10 +398,19 @@ void App::Init_PE_Page(LPSTR fname)
 {
     SetWindowPos(hwnd, NULL, 0, 0, 900, 660, SWP_NOMOVE);
     Elf32_Ehdr *target = (Elf32_Ehdr*)pFileStream->GetFile();
-    
-    HTREEITEM rootItem = insertTreeItem("PE Header", ID_PEHDR, TVI_ROOT, TVI_LAST, 2, 2);
+
+    HTREEITEM rootItem = insertTreeItem("IMAGE_FILE_HEADER", ID_PE_HDR, TVI_ROOT, TVI_LAST, 2, 2);
     HTREEITEM hItem = insertTreeItem("Section Hdr", ID_SHDR, rootItem, TVI_LAST);
-   SendMessage(treeView, TVM_SELECTITEM, (WPARAM)TVGN_CARET, (LPARAM)rootItem);
+    insertTreeItem("Hex editor", ID_HEXEDIT, rootItem, TVI_LAST, 1, 0);
+    insertTreeItem("Disassembler", ID_TREE_DASM, rootItem, TVI_LAST, 1, 0);
+    SendMessage(treeView, TVM_SELECTITEM, (WPARAM)TVGN_CARET, (LPARAM)rootItem);
+
+    // Insert Tab page
+    TCITEM tci = { 0 };
+    tci.mask = TCIF_TEXT;
+    tci.pszText = fname;
+    tci.cchTextMax = lstrlen(fname);
+    SendMessage(tabView, TCM_INSERTITEM, nTab++, (LPARAM)&tci);
 
 }
 
@@ -281,7 +428,9 @@ void App::OnFileClose()
     if(pCurrPage)
         delete pCurrPage;
     pCurrPage = NULL;
-
+    if(nTab > 0)
+        nTab--;
+//    int nSel = SendMessage(tabView, TCM_GETCURSEL, 0, 0);
     TabCtrl_DeleteItem(tabView,0);
     TreeView_DeleteAllItems(treeView);
 }
@@ -340,7 +489,7 @@ void App::OnNotify(WPARAM wParam, LPARAM lParam)
 
         switch(iItem.lParam)
         {
-            case ID_EHDR:
+            case ID_ELF_HDR:
                 if (pCurrPage) delete pCurrPage;
                 pCurrPage = new EHDR_Page(tabView, pFileStream);
                 break;
@@ -356,6 +505,10 @@ void App::OnNotify(WPARAM wParam, LPARAM lParam)
                 if (pCurrPage) delete pCurrPage;
                 pCurrPage = new SYM_Page(tabView, pFileStream);
                 break;
+            case ID_PE_HDR:
+                if (pCurrPage) delete pCurrPage;
+                pCurrPage = new PE_Page(tabView, pFileStream);
+                break;
             case ID_ANY:
     printf("ID_ANY");
                 break;
@@ -365,7 +518,7 @@ void App::OnNotify(WPARAM wParam, LPARAM lParam)
                 if(pCurrPage) delete pCurrPage;
                 pCurrPage = new HEX_Page(tabView.getHandle(), pFileStream);
                 break;
-            case ID_DASM:
+            case ID_TREE_DASM:
                 if(pCurrPage) delete pCurrPage;
                 pCurrPage = new DASM_Page(tabView.getHandle(), pFileStream);
                 break;*/
@@ -400,6 +553,8 @@ void App::OnNotify(WPARAM wParam, LPARAM lParam)
 
 void App::OnAbout()
 {
+    DialogBox(hInst, MAKEINTRESOURCE(DLG_ABOUT), hwnd, AboutDlgProc);
+
 }
 
 

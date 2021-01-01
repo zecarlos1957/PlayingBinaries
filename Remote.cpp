@@ -1,6 +1,7 @@
 #include "resource.h"
 #include <windows.h>
-#include "hexplore.h"
+#include "elf.h"
+#include "cfilestream.h"
 
 using namespace std;
 
@@ -22,16 +23,18 @@ char *getline(char *dst, char *src, char term)
 int UpdateInfo(Elf32_Sym *Sym, char *name, LPARAM lParam)
 {
     char *ptr = (char*)lParam;
-
     DWORD type = 0;
-
     char line[80];
 
     while(*(ptr-1))
     {
         getline(line, ptr,'\n');
     
-        if(memcmp(line, name, lstrlen(name)) == 0)
+        if(memcmp(ptr, "STT_", 4) == 0)
+        {
+            type = *(DWORD*)(ptr+4);
+        }
+        else if(memcmp(line, name, lstrlen(name)) == 0)
         {
             char iBind = ELF32_ST_BIND(Sym->st_info);
             char *BindStr = line + lstrlen(name);
@@ -67,15 +70,12 @@ int UpdateInfo(Elf32_Sym *Sym, char *name, LPARAM lParam)
  //           printf("%s 0x%x %d\n", name, Sym->st_value, (int)Sym->st_info);
             return 1;
         }
-        else if(memcmp(ptr, "STT_", 4) == 0)
-        {
-            type = *(DWORD*)(ptr+4);
-        }
         ptr += lstrlen(line)+1;
     }
 
     return 1;
 }
+
 
 int RunSilent(LPSTR cfg)
 {

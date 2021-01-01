@@ -1,104 +1,9 @@
 #include "resource.h"
 #include <windows.h>
 #include <commctrl.h>
-#include "Hexplore.h"
+#include "Pages.h"
 #include "elf.h"
-
-
-// return pointer to Section Header Table
-static inline Elf32_Shdr *elf_sheader(Elf32_Ehdr *hdr)
-{
-    return (Elf32_Shdr *)((int)hdr + hdr->e_shoff);
-}
-
-//
-static inline Elf32_Shdr *elf_section(Elf32_Ehdr *hdr, int idx)
-{
-    return &elf_sheader(hdr)[idx];
-}
-
-static CHAR* elf_str_table(Elf32_Ehdr *hdr)
-{
-    if (hdr->e_shstrndx == SHN_UNDEF)return NULL;
-    return (CHAR*)hdr + elf_section(hdr, hdr->e_shstrndx)->sh_offset;
-}
-
-static CHAR *elf_lookup_string(Elf32_Ehdr *hdr, INT offset)
-{
-    CHAR *strtab = elf_str_table(hdr);
-    if(strtab == NULL) return NULL;
-    return strtab + offset;
-}
-
-static char *get_symbol_strtab(Elf32_Ehdr *target)
-{
-    char *shstrtab;
-    {
-        unsigned int i = 0;
-        for (unsigned int x = 0; x < (unsigned int)target->e_shentsize * target->e_shnum; x += target->e_shentsize)
-        {
-            Elf32_Shdr * shdr = (Elf32_Shdr *)((uintptr_t)target + (target->e_shoff + x));
-            if (i == target->e_shstrndx) {
-                shstrtab = (char *)((uintptr_t)target + shdr->sh_offset);
-            }
-            i++;
-        }
-    }
-
-    for (unsigned int x = 0; x < (unsigned int)target->e_shentsize * target->e_shnum; x += target->e_shentsize)
-    {
-        Elf32_Shdr * shdr = (Elf32_Shdr *)((uintptr_t)target + (target->e_shoff + x));
-        if (shdr->sh_type == SHT_STRTAB && (!strcmp((char *)((uintptr_t)shstrtab + shdr->sh_name), ".strtab")))
-             return (char *)((uintptr_t)target + shdr->sh_offset);
-    }
-    return NULL;
-}
-
-static Elf32_Shdr *get_symbol_table(Elf32_Ehdr *target)
-{
-    char *shstrtab;
-    {
-        unsigned int i = 0;
-        for (unsigned int x = 0; x < (unsigned int)target->e_shentsize * target->e_shnum; x += target->e_shentsize)
-        {
-            Elf32_Shdr * shdr = (Elf32_Shdr *)((uintptr_t)target + (target->e_shoff + x));
-            if (i == target->e_shstrndx) {
-                shstrtab = (char *)((uintptr_t)target + shdr->sh_offset);
-            }
-            i++;
-        }
-    }
-
-    for (unsigned int x = 0; x < (unsigned int)target->e_shentsize * target->e_shnum; x += target->e_shentsize)
-    {
-       Elf32_Shdr * shdr = (Elf32_Shdr *)((uintptr_t)target + (target->e_shoff + x));
-       if (shdr->sh_type == SHT_SYMTAB && (!strcmp((char *)((uintptr_t)shstrtab + shdr->sh_name), ".symtab")))
-            return shdr;
-    }
-    return NULL;
-}
-
-
-void EnumSymbols(Elf32_Ehdr *target, SymFunc fn, LPARAM lParam)
-{
-    if (!target)
-        return;
-    
-    char *strtab = get_symbol_strtab(target);
-    Elf32_Shdr *symtab = get_symbol_table(target);
-
-    for(int i = 0; i < (symtab->sh_size / symtab->sh_entsize); i++)
-    {
-        Elf32_Sym * symbol = (Elf32_Sym *)((DWORD)target + symtab->sh_offset + i * symtab->sh_entsize);
-        char * name = (char*)(strtab + symbol->st_name);
-
-        if(fn(symbol, name, lParam) == 0)
-            return;
-    }
-}
-
-/*********************************************************/
-/*********************************************************/
+#include "dasm/dasmengine.h"
 
 
    char *EhdrStr[] =
@@ -504,9 +409,10 @@ void EHDR_Page::UpdateHdr()
 SHDR_Page::SHDR_Page(HWND hParent,  CFileStream *pFile)
 {
     target = (Elf32_Ehdr*)pFile->GetFile();
-    hWnd = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(SHDR_PAGE),hParent, SHDR_Page::ShdrProc, (LPARAM)this);
+    hWnd = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(SHDR_PAGE), hParent, SHDR_Page::ShdrProc, (LPARAM)this);
     HdrData = GetDlgItem(hWnd, IDC_SHDR);
     HexEdit = GetDlgItem(hWnd, IDC_HEXDATA);
+    ListView_SetExtendedListViewStyle(HexEdit, LVS_EX_FULLROWSELECT);
 
     BuildHex();
     BuildHdr();
@@ -561,7 +467,7 @@ void SHDR_Page::BuildHdr()
 
     HINSTANCE hInst = (HINSTANCE)GetWindowLong(HdrData, GWL_HINSTANCE);
 
-    ListView_SetExtendedListViewStyle(HdrData, LVS_EX_FULLROWSELECT);
+    ListView_SetExtendedListViewStyle(HdrData, LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES);
     LVCOLUMN lvc = { 0 };
 
     lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
@@ -593,8 +499,6 @@ void SHDR_Page::BuildHdr()
         i++;
     }
 
-
-    i = 1;
     for (lvi.iItem = 0; lvi.iItem < target->e_shnum - 1; lvi.iItem++)
     {
         Elf32_Shdr* shdr = (Elf32_Shdr*)((uintptr_t)target + (target->e_shoff + ((lvi.iItem+1)*target->e_shentsize)));
@@ -940,7 +844,7 @@ BOOL CALLBACK  DASM_Page::DasmProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 /*****************************************/
 
 SYM_Page::SYM_Page(HWND hwnd, CFileStream *pFile)
- {
+{
     target = (Elf32_Ehdr*)pFile->GetFile();
     hWnd = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(SYMBOL_PAGE),hwnd, SYM_Page::SymProc, (LPARAM)this);
 
@@ -949,11 +853,16 @@ SYM_Page::SYM_Page(HWND hwnd, CFileStream *pFile)
     ChkFile = GetDlgItem(hWnd, IDC_CHKFILE);
     SymbolList = GetDlgItem(hWnd, IDC_SYMBOLTAB);
     ChkSection = GetDlgItem(hWnd, IDC_CHKSECTION);
+    CodeList = GetDlgItem(hWnd, IDC_DASM);
+
     HFONT hf = (HFONT)GetStockObject(ANSI_VAR_FONT);
     SendMessage(ChkObj, WM_SETFONT, (WPARAM)hf, TRUE);
     SendMessage(ChkFunc, WM_SETFONT, (WPARAM)hf, TRUE);
     SendMessage(ChkFile, WM_SETFONT, (WPARAM)hf, TRUE);
     SendMessage(ChkSection, WM_SETFONT, (WPARAM)hf, TRUE);
+
+//    hf = (HFONT)GetStockObject(ANSI_FIXED_FONT);
+ //   SendMessage(CodeList, WM_SETFONT, (WPARAM)hf, TRUE);
 
     ListView_SetExtendedListViewStyle(SymbolList, LVS_EX_FULLROWSELECT);
     CheckDlgButton(hWnd, IDC_CHKOBJ, BST_CHECKED);
@@ -962,7 +871,7 @@ SYM_Page::SYM_Page(HWND hwnd, CFileStream *pFile)
     lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
     lvc.fmt = LVCFMT_LEFT;
     lvc.iSubItem = 0;
-    lvc.cx = 100;
+    lvc.cx = 60;
     lvc.pszText = "Address";
     ListView_InsertColumn(SymbolList, 0, &lvc);
     lvc.cx = 150;
@@ -978,6 +887,24 @@ SYM_Page::SYM_Page(HWND hwnd, CFileStream *pFile)
     lvc.pszText = "Bind";
     ListView_InsertColumn(SymbolList, 3, &lvc);
     UpdateData();
+
+    ListView_SetExtendedListViewStyle(CodeList, LVS_EX_FULLROWSELECT);
+    lvc = { 0 };
+    lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+    lvc.fmt = LVCFMT_LEFT;
+    lvc.iSubItem = 0;
+    lvc.cx = 70;
+    lvc.pszText = "Address";
+    ListView_InsertColumn(CodeList, 0, &lvc);
+    lvc.cx = 110;
+    lvc.iSubItem = 1;
+    lvc.pszText = "Opcode";
+    ListView_InsertColumn(CodeList, 1, &lvc);
+    lvc.cx = 200;
+    lvc.iSubItem = 2;
+    lvc.pszText = "Instruction";
+    ListView_InsertColumn(CodeList, 2, &lvc);
+
  }
 
 void SYM_Page::UpdateData()
@@ -1026,7 +953,8 @@ void SYM_Page::UpdateData()
 
 SYM_Page::~SYM_Page()
 {
-    ListView_DeleteAllItems(hWnd);
+    ListView_DeleteAllItems(SymbolList);
+    ListView_DeleteAllItems(CodeList);
     SendMessage(hWnd, WM_CLOSE, 0, 0);
 }
 
@@ -1063,7 +991,7 @@ BOOL CALLBACK  SYM_Page::SymProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
             break;
 
         case WM_NOTIFY:
-
+            page->OnNotify(wParam, lParam);
             break;
 
         case WM_CLOSE:
@@ -1074,9 +1002,33 @@ BOOL CALLBACK  SYM_Page::SymProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
     return FALSE;
 }
 
+int SYM_Page::OnNotify(WPARAM wParam, LPARAM lParam)
+{
+    if ( ((LPNMHDR)lParam)->code == LVN_ITEMCHANGED && wParam == IDC_SYMBOLTAB)
+    {
+        LPNMITEMACTIVATE lpit = (LPNMITEMACTIVATE) lParam;
+        if((lpit->uNewState & LVIS_SELECTED)  && (lpit->uNewState & LVIS_FOCUSED))
+        {
+            char *strtab = get_symbol_strtab(target);
+            Elf32_Shdr *symtab = get_symbol_table(target);
+            Elf32_Sym * symbol = (Elf32_Sym *)((DWORD)target + symtab->sh_offset + (lpit->iItem + 1)* symtab->sh_entsize);
+            Elf32_Shdr *text = elf_section(target, 1);
+
+            if(ELF32_ST_TYPE(symbol->st_info) == STT_FUNC)
+            {
+                Elf32_Sym * next_symbol = (Elf32_Sym *)((DWORD)target + symtab->sh_offset + (lpit->iItem + 2)* symtab->sh_entsize);
+                DWORD nSize = next_symbol->st_value - symbol->st_value;
+                DWORD *addr = (DWORD*)((DWORD)target - text->sh_addr + symbol->st_value + text->sh_offset);
+                DoDisassembly(CodeList, addr, nSize, symbol->st_value, FALSE);
+            }
+        }
+    }
+    return 0;
+}
+
 int SYM_Page::OnMaskButton(WPARAM wParam, LPARAM lParam)
 {
- /*   if (HIWORD(wParam) == BN_CLICKED)
+    if (HIWORD(wParam) == BN_CLICKED)
     {
         switch(LOWORD(wParam))
         {
@@ -1106,6 +1058,35 @@ int SYM_Page::OnMaskButton(WPARAM wParam, LPARAM lParam)
                 break;
        }
         UpdateData();
-    }*/
+    }
+    return 0;
+}
+
+PE_Page::PE_Page(HWND hwnd, CFileStream *pFile)
+{
+}
+
+PE_Page::~PE_Page()
+{
+}
+
+
+BOOL CALLBACK  PE_Page::PeProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    static Page *page = NULL;
+    switch (msg)
+    {
+        case WM_INITDIALOG:
+            page = (Page*)lParam;
+            return TRUE;
+        case WM_COMMAND:
+            break;
+        case WM_CLOSE:
+            DestroyWindow(hwnd);
+            break;
+
+    }
+    return FALSE;
+
 }
 

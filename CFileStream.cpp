@@ -11,7 +11,7 @@ CFileStream::CFileStream(const char *Path):Dirty(FALSE)
 		MessageBox(NULL,text,"Erro:",MB_OK|MB_ICONERROR);
 	}
 	else
-		{
+	{
 		FileSize = (int)File.tellg();
 		File.seekg(0,ios::beg);
 		Mem = new unsigned char[FileSize];
