@@ -1012,9 +1012,7 @@ int SYM_Page::OnNotify(WPARAM wParam, LPARAM lParam)
             char *strtab = get_symbol_strtab(target);
             Elf32_Shdr *symtab = get_symbol_table(target);
             Elf32_Sym * symbol = (Elf32_Sym *)((DWORD)target + symtab->sh_offset + (lpit->iItem + 1)* symtab->sh_entsize);
-            int nItems = ListView_GetItemCount(SymbolList);
             Elf32_Shdr *text = elf_section(target, 1);
-            DWORD base_Addr = text->sh_addr;
 
             if(ELF32_ST_TYPE(symbol->st_info) == STT_FUNC)
             {
@@ -1022,20 +1020,10 @@ int SYM_Page::OnNotify(WPARAM wParam, LPARAM lParam)
                 DWORD nSize = next_symbol->st_value - symbol->st_value;
                 DWORD *addr = (DWORD*)((DWORD)target - text->sh_addr + symbol->st_value + text->sh_offset);
                 DoDisassembly(CodeList, addr, nSize, symbol->st_value, FALSE);
-              //  Translate((DWORD*)symbol->st_value, nSize);
-   //            printf("SubItem %d 0x%x, %d \n", lpit->iItem, symbol->st_value, nSize);//, shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
--  //           printf("addr 0x%x, off 0x%x \n", text->sh_addr, (DWORD)addr);
             }
         }
     }
     return 0;
-}
-
-void SYM_Page::Translate(DWORD *code, DWORD dwSize)
-{
-    // create a memory mapping for the file with GENERIC_READ and GENERIC_EXECUTE
-    // that is, create the file mapping object
-//    DoDisassembly(code, dwSize, (DWORD)code, FALSE);
 }
 
 int SYM_Page::OnMaskButton(WPARAM wParam, LPARAM lParam)

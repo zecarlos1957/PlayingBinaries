@@ -75,7 +75,6 @@ void EnumSymbols(Elf32_Ehdr *target, SymFunc fn, LPARAM lp);
         static BOOL CALLBACK  SymProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
         int OnMaskButton(WPARAM wParam, LPARAM lParam);
         int OnNotify(WPARAM wParam, LPARAM lParam);
-        void Translate(DWORD *code, DWORD dwSize);
    };
 
     class HEX_Page: public Page

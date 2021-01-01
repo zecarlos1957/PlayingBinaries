@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1607335456 source:d:\source\playingbinaries\cfilestream.cpp
+1607982204 source:d:\source\playingbinaries\cfilestream.cpp
 	"CFileStream.h"
 
 1605864947 d:\source\playingbinaries\cfilestream.h
@@ -13,13 +13,13 @@
 	<windows.h>
 	"hexplore.h"
 
-1607335456 d:\source\playingbinaries\resource.h
+1607982204 d:\source\playingbinaries\resource.h
 
 1606143890 d:\source\playingbinaries\hexplore.h
 	"CFileStream.h"
 	"elf.h"
 
-1607335456 d:\source\playingbinaries\elf.h
+1607982204 d:\source\playingbinaries\elf.h
 	<windows.h>
 
 1606068322 source:d:\source\playingbinaries\hexplore.cpp
@@ -29,7 +29,7 @@
 	"Hexplore.h"
 	"elf.h"
 
-1607341038 source:d:\source\playingbinaries\main.cpp
+1609532275 source:d:\source\playingbinaries\main.cpp
 	"resource.h"
 	<windows.h>
 	<commctrl.h>
@@ -39,21 +39,21 @@
 	"pages.h"
 	"CFileStream.h"
 
-1607335456 source:d:\source\playingbinaries\playbin.rc
+1607988429 source:d:\source\playingbinaries\playbin.rc
 	"resource.h"
 	<windows.h>
 
-1607335456 source:d:\source\playingbinaries\elf.cpp
+1607982204 source:d:\source\playingbinaries\elf.cpp
 	"resource.h"
 	<windows.h>
 	<commctrl.h>
 	"elf.h"
 
-1607335456 d:\source\playingbinaries\pages.h
+1607982204 d:\source\playingbinaries\pages.h
 	"CFileStream.h"
 	"elf.h"
 
-1607335456 source:d:\source\playingbinaries\pages.cpp
+1609530461 source:d:\source\playingbinaries\pages.cpp
 	"resource.h"
 	<windows.h>
 	<commctrl.h>
@@ -61,30 +61,30 @@
 	"elf.h"
 	"dasm/dasmengine.h"
 
-1607335456 source:d:\source\playingbinaries\remote.cpp
+1607982204 source:d:\source\playingbinaries\remote.cpp
 	"resource.h"
 	<windows.h>
 	"elf.h"
 	"cfilestream.h"
 
-1607335456 source:d:\source\playingbinaries\dasm\dasmassert.cpp
+1607982204 source:d:\source\playingbinaries\dasm\dasmassert.cpp
 	"DasmAssert.h"
 
-1607335456 d:\source\playingbinaries\dasm\dasmassert.h
+1607982204 d:\source\playingbinaries\dasm\dasmassert.h
 	<stdio.h>
 	<stdlib.h>
 
-1607335456 source:d:\source\playingbinaries\dasm\dasmengine.cpp
+1607988833 source:d:\source\playingbinaries\dasm\dasmengine.cpp
 	"DasmEngine.h"
 	<windows.h>
 	<commctrl.h>
 
-1607335456 d:\source\playingbinaries\dasm\dasmengine.h
+1607982204 d:\source\playingbinaries\dasm\dasmengine.h
 	<windows.h>
 	"DasmInc.h"
 	"Utils.h"
 
-1607335456 d:\source\playingbinaries\dasm\dasminc.h
+1607982204 d:\source\playingbinaries\dasm\dasminc.h
 	<Windows.h>
 	<stdlib.h>
 	<stdio.h>
@@ -92,17 +92,17 @@
 	"DasmAssert.h"
 	"Logger.h"
 
-1607335456 d:\source\playingbinaries\dasm\logger.h
+1607982204 d:\source\playingbinaries\dasm\logger.h
 	<Windows.h>
 
-1607335456 d:\source\playingbinaries\dasm\utils.h
+1607982204 d:\source\playingbinaries\dasm\utils.h
 	"DasmInc.h"
 	"DASMEngine.h"
 
-1607335456 source:d:\source\playingbinaries\dasm\logger.cpp
+1607982204 source:d:\source\playingbinaries\dasm\logger.cpp
 	"Logger.h"
 	"DasmAssert.h"
 
-1607335456 source:d:\source\playingbinaries\dasm\utils.cpp
+1607982204 source:d:\source\playingbinaries\dasm\utils.cpp
 	"Utils.h"
 
