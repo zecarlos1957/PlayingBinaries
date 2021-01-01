@@ -65,7 +65,40 @@ public:
 HBITMAP hbmp;
 HWND hTab1,hTab2,hTab3;
 
- 
+BOOL ShowLicence(HWND hEdit, LPCTSTR pszFileName)
+{
+	HANDLE hFile;
+	BOOL bSuccess = FALSE;
+
+	hFile = CreateFile(pszFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	if(hFile != INVALID_HANDLE_VALUE)
+	{
+		DWORD dwFileSize;
+
+		dwFileSize = GetFileSize(hFile, NULL);
+		if(dwFileSize != 0xFFFFFFFF)
+		{
+			LPSTR pszFileText;
+
+			pszFileText = (LPSTR)GlobalAlloc(GPTR, dwFileSize + 1);
+			if(pszFileText != NULL)
+			{
+				DWORD dwRead;
+
+				if(ReadFile(hFile, pszFileText, dwFileSize, &dwRead, NULL))
+				{
+					pszFileText[dwFileSize] = 0; // Add null terminator
+					if(SetWindowText(hEdit, pszFileText))
+						bSuccess = TRUE; // It worked!
+				}
+				GlobalFree(pszFileText);
+			}
+		}
+		CloseHandle(hFile);
+	}
+	return bSuccess;
+}
+
 BOOL CALLBACK AboutDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     static HWND current;
@@ -99,16 +132,17 @@ BOOL CALLBACK AboutDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
             RECT tr = {0};
             TabCtrl_GetItemRect(hTab,0,&tr);
 
-            hTab3 = CreateWindowEx(WS_EX_STATICEDGE,"EDIT","Static Tab3",WS_CHILD|ES_MULTILINE|ES_READONLY|WS_VSCROLL,
+            hTab3 = CreateWindowEx(WS_EX_STATICEDGE,"EDIT","",WS_CHILD|ES_MULTILINE|ES_READONLY|WS_VSCROLL,
                                  20,35,410,110,hTab,(HMENU)IDC_LICENCE2,hInst,NULL);
-            hTab2 = CreateWindowEx(WS_EX_STATICEDGE,"EDIT","Static Tab2",WS_CHILD|ES_MULTILINE|ES_READONLY|WS_VSCROLL,
+            hTab2 = CreateWindowEx(WS_EX_STATICEDGE,"EDIT","",WS_CHILD|ES_MULTILINE|ES_READONLY|WS_VSCROLL,
                                  20,35,410,110,hTab,(HMENU)IDC_LICENCE,hInst,NULL);
-            hTab1 = CreateWindowEx(WS_EX_STATICEDGE,"STATIC","Static ",WS_CHILD|WS_VISIBLE ,//|SS_BITMAP ,
+            hTab1 = CreateWindowEx(WS_EX_STATICEDGE,"STATIC","",WS_CHILD|WS_VISIBLE ,
                                  20,35,410,110,hTab,(HMENU)NULL,hInst,NULL);
+
 
             current = hTab1;
             ShowWindow(current,SW_SHOWNORMAL);
-            
+
             return TRUE;
         }
         case WM_PAINT:
@@ -136,19 +170,18 @@ BOOL CALLBACK AboutDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
                 switch(iPage)
                 {
                     case 0:
-                         printf("%d %d\n", iPage, lpnmhdr->idFrom);
                         ShowWindow(current, SW_HIDE);
                         ShowWindow(hTab1, SW_SHOW);
                         current = hTab1;
                         return 0;
                     case 1:
-                        printf("%d %d\n", iPage, lpnmhdr->idFrom);
+                        ShowLicence(hTab2, "License");
                         ShowWindow(current, SW_HIDE);
                         ShowWindow(hTab2, SW_SHOW);
                         current = hTab2;
                         return 0;
                     case 2:
-                        printf("%d %d\n", iPage, lpnmhdr->idFrom);
+                        ShowLicence(hTab3, "License");
                         ShowWindow(current, SW_HIDE);
                         ShowWindow(hTab3, SW_SHOW);
                         current = hTab3;
@@ -166,7 +199,7 @@ BOOL CALLBACK AboutDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
     }
     return FALSE;
 }
- 
+
 App::App(HINSTANCE hinst):hInst(hinst), pCurrPage(NULL), pFileStream(NULL), nTab(0)
 {
     INITCOMMONCONTROLSEX commonCtrls;
