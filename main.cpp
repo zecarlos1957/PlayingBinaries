@@ -69,6 +69,8 @@ BOOL ShowLicence(HWND hEdit, LPCTSTR pszFileName)
 {
 	HANDLE hFile;
 	BOOL bSuccess = FALSE;
+    HFONT hf = (HFONT)GetStockObject(ANSI_VAR_FONT);
+    SendMessage(hEdit,WM_SETFONT, (WPARAM)hf, TRUE);
 
 	hFile = CreateFile(pszFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 	if(hFile != INVALID_HANDLE_VALUE)
@@ -133,11 +135,11 @@ BOOL CALLBACK AboutDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
             TabCtrl_GetItemRect(hTab,0,&tr);
 
             hTab3 = CreateWindowEx(WS_EX_STATICEDGE,"EDIT","",WS_CHILD|ES_MULTILINE|ES_READONLY|WS_VSCROLL,
-                                 20,35,410,110,hTab,(HMENU)IDC_LICENCE2,hInst,NULL);
+                                 10,35,505,110,hTab,(HMENU)IDC_LICENCE2,hInst,NULL);
             hTab2 = CreateWindowEx(WS_EX_STATICEDGE,"EDIT","",WS_CHILD|ES_MULTILINE|ES_READONLY|WS_VSCROLL,
-                                 20,35,410,110,hTab,(HMENU)IDC_LICENCE,hInst,NULL);
+                                 10,35,505,110,hTab,(HMENU)IDC_LICENCE,hInst,NULL);
             hTab1 = CreateWindowEx(WS_EX_STATICEDGE,"STATIC","",WS_CHILD|WS_VISIBLE ,
-                                 20,35,410,110,hTab,(HMENU)NULL,hInst,NULL);
+                                 10,35,505,110,hTab,(HMENU)NULL,hInst,NULL);
 
 
             current = hTab1;
